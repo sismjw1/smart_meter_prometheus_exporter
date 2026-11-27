@@ -52,6 +52,7 @@ class Encodings(Enum):
     bitmap_32 = 0x1b
     int_24 = 0x2A
     uint_8 = 0x20
+    uint_16 = 0x21      # Type crashed script
     uint_24 = 0x22
     uint_32 = 0x23
     uint_48 = 0x25
@@ -121,6 +122,9 @@ def value_decoder(data: bytes):
         elif encoding == Encodings.uint_8.value:
             value = int.from_bytes(data[marker:marker+1], "little", signed=False)
             marker += 1
+        elif encoding == Encodings.uint_16.value:
+            value = int.from_bytes(data[marker:marker+2], "little", signed=False)
+            marker += 2
         elif encoding == Encodings.uint_24.value:
             value = int.from_bytes(data[marker:marker+3], "little", signed=False)
             marker += 3
@@ -145,7 +149,7 @@ def value_decoder(data: bytes):
                 "unrecognised data encoding {:04X} in atibute {:04X} and cluster {:04X}"
                 .format(encoding, attribute, cluster))
             print(data.hex(" "))
-            return None
+            break
 
         parameters[attribute] = {"type": encoding, "value": value}
 
