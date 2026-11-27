@@ -21,20 +21,22 @@ def get_attribute(meter, cluster, attribute):
 
 
 def process_data_block(data):
-    data = decoder.decode_data_block(data)
-
-    if data[0] == 0x00:
-        decoded = decoder.value_decoder(data)
-
-        if decoded["meter"] not in all_data:
-            all_data[decoded["meter"]] = dict()
-        if decoded["cluster"] not in all_data[decoded["meter"]]:
-            all_data[decoded["meter"]][decoded["cluster"]] = dict()
-
-        for attribute in decoded["parameters"]:
-            all_data[decoded["meter"]][decoded["cluster"]][attribute] = decoded["parameters"][attribute]
-            all_data[decoded["meter"]][decoded["cluster"]][attribute]["updated"] = time.time()
-
+    try:
+        data = decoder.decode_data_block(data)
+    
+        if data[0] == 0x00:
+            decoded = decoder.value_decoder(data)
+    
+            if decoded["meter"] not in all_data:
+                all_data[decoded["meter"]] = dict()
+            if decoded["cluster"] not in all_data[decoded["meter"]]:
+                all_data[decoded["meter"]][decoded["cluster"]] = dict()
+    
+            for attribute in decoded["parameters"]:
+                all_data[decoded["meter"]][decoded["cluster"]][attribute] = decoded["parameters"][attribute]
+                all_data[decoded["meter"]][decoded["cluster"]][attribute]["updated"] = time.time()
+    except Exception as e:
+        print(f"Failed to process block: {e!r}")
 
 class MeterCollector(Collector):
     """
